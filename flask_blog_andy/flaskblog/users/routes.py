@@ -7,10 +7,11 @@ from flaskblog.users.utils import save_picture, send_reset_email
 from flaskblog import db, bcrypt
 from flask_mail import Message
 from flaskblog import mail
+from functools import wraps
+from flask import abort
 
 
 users = Blueprint('users', __name__)
-
 
 
 @users.route("/register", methods=['GET', 'POST'])
@@ -20,7 +21,9 @@ def register():
     form = RegistrationForm()
     if form.validate():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        is_admin = True if form.username.data.lower() == 'admin' else False
+        is_superuser = True if form.username.data.lower() == 'superuser' else False
+        user = User(username=form.username.data, email=form.email.data, password=hashed_password,is_admin=is_admin)
         db.session.add(user)
         db.session.commit()
         flash('Your account has been created! You are now able to log in', 'success')
