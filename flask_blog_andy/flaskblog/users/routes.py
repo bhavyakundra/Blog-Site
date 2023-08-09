@@ -22,7 +22,6 @@ def register():
     if form.validate():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         is_admin = True if form.username.data.lower() == 'admin' else False
-        is_superuser = True if form.username.data.lower() == 'superuser' else False
         user = User(username=form.username.data, email=form.email.data, password=hashed_password,is_admin=is_admin)
         db.session.add(user)
         db.session.commit()
