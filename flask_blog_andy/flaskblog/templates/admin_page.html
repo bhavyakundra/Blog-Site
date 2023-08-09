@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Admin Page</h1>
+    <h2>Users</h2>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Add Posts</th>
+                    <th>Update Posts</th>
+                    <th>Delete Posts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td><input type="checkbox" name="can_add_post_{{ user.id }}" class="form-check-input" {% if user.can_add_post %}checked{% endif %}></td>
+                        <td><input type="checkbox" name="can_update_post_{{ user.id }}" class="form-check-input" {% if user.can_update_post %}checked{% endif %}></td>
+                        <td><input type="checkbox" name="can_delete_post_{{ user.id }}" class="form-check-input" {% if user.can_delete_post %}checked{% endif %}></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+    <h2>Posts</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Content</th>
+                <th>Author</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+                <tr>
+                    <td>{{ post.title }}</td>
+                    <td>{{ post.content }}</td>
+                    <td>{{ post.author.username }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}
