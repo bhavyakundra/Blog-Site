@@ -6,6 +6,7 @@ app = create_app()
 bcrypt = Bcrypt()
 
 with app.app_context():
+    db.create_all()
     # Retrieve the admin user
     admin_user = User.query.filter_by(username='admin').first()
 
