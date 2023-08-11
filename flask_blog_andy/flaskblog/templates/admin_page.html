@@ -12,6 +12,7 @@
                     <th>Add Posts</th>
                     <th>Update Posts</th>
                     <th>Delete Posts</th>
+                    <th>Delete User</th>
                 </tr>
             </thead>
             <tbody>
@@ -22,6 +23,17 @@
                         <td><input type="checkbox" name="can_add_post_{{ user.id }}" class="form-check-input" {% if user.can_add_post %}checked{% endif %}></td>
                         <td><input type="checkbox" name="can_update_post_{{ user.id }}" class="form-check-input" {% if user.can_update_post %}checked{% endif %}></td>
                         <td><input type="checkbox" name="can_delete_post_{{ user.id }}" class="form-check-input" {% if user.can_delete_post %}checked{% endif %}></td>
+                        <td>
+                            {% if current_user.is_admin %}
+                                <!-- Delete User Form -->
+                                <form method="POST" action="{{ url_for('users.delete_user', user_id=user.id) }}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            {% else %}
+                                <p>You do not have permission to delete users.</p>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -37,6 +49,7 @@
                 <th>Title</th>
                 <th>Content</th>
                 <th>Author</th>
+                <th>Delete</th>
             </tr>
         </thead>
         <tbody>
@@ -45,6 +58,12 @@
                     <td>{{ post.title }}</td>
                     <td>{{ post.content }}</td>
                     <td>{{ post.author.username }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('posts.delete_post', post_id=post.id) }}">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

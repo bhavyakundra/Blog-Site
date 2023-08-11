@@ -123,3 +123,34 @@ def reset_token(token):
         flash('Your password has been updated! You can now log in.', 'success')
         return redirect(url_for('users.login'))
     return render_template('reset_token.html', title='Reset Password', form=form)
+
+
+@users.route("/user/<int:user_id>/update_permissions", methods=['POST'])
+@login_required
+def update_permissions(user_id):
+    if current_user.is_admin:
+        user = User.query.get_or_404(user_id)
+        
+        user.can_add_post = bool(request.form.get(f"can_add_post_{user.id}"))
+        user.can_update_post = bool(request.form.get(f"can_update_post_{user.id}"))
+        user.can_delete_post = bool(request.form.get(f"can_delete_post_{user.id}"))
+        
+        db.session.commit()
+        
+        flash('User permissions updated!', 'success')
+    
+    return redirect(url_for('admin.admin_page'))
+
+
+@users.route("/user/<int:user_id>/delete", methods=['POST'])  # Change the method to POST
+@login_required
+def delete_user(user_id):
+    if current_user.is_admin:
+        user = User.query.get_or_404(user_id)
+        
+        db.session.delete(user)
+        db.session.commit()
+        
+        flash('The user has been deleted!', 'success')
+    
+    return redirect(url_for('admin.admin_page'))  # Redirect to the home page
