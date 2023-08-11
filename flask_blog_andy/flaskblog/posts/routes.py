@@ -59,15 +59,16 @@ def update_post(post_id):
 @posts.route("/post/<int:post_id>/delete", methods=['POST'])
 @login_required 
 def delete_post(post_id):
-    if (current_user.can_delete_post or current_user.is_admin):
+    if current_user.is_admin or current_user.can_delete_post:
         post = Post.query.get_or_404(post_id)
-        if post.author != current_user:
-            abort(403)
         db.session.delete(post)
         db.session.commit()
-        flash('Your post has been deleted!', 'success')
+        flash('The post has been deleted!', 'success')
         return redirect(url_for('main.home'))
     
     else:
         flash('You do not have permission to delete posts.', 'danger')
         return redirect(url_for('main.home'))
+
+    
+
