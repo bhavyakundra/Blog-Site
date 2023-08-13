@@ -19,6 +19,6 @@ def home():
 def about():
     return render_template('about.html', title='About')
 
-@main.route("/mary")
-def mary():
-    return render_template('mary.html', title='mary')
+# @main.route("/mary")
+# def mary():
+#     return render_template('mary.html', title='mary')
