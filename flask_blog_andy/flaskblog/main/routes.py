@@ -19,6 +19,11 @@ def home():
 def about():
     return render_template('about.html', title='About')
 
+@main.route("/table")
+def table():
+    return render_template('table.html', title='Table')
+
+
 # @main.route("/mary")
 # def mary():
 #     return render_template('mary.html', title='mary')
