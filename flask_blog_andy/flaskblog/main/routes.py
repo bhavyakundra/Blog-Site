@@ -19,9 +19,9 @@ def home():
 def about():
     return render_template('about.html', title='About')
 
-@main.route("/table")
-def table():
-    return render_template('table.html', title='Table')
+@main.route("/amzn")
+def amzn():
+    return render_template('amzn.html', title='Table')
 
 
 # @main.route("/mary")
