@@ -20,6 +20,8 @@ end of process - no response if successful
 
 
 questions 8/11/23
+New users cannot post after registering? Why is that?
+How can users post pics?
 Why is this url not loading?  http://54.234.152.120:8000/mary
 Where is the database and how to look up users and posts?
 How do I run queries of the database on RDS AWS?

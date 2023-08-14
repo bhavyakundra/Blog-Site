@@ -24,6 +24,6 @@ def amzn():
     return render_template('amzn.html', title='Table')
 
 
-# @main.route("/mary")
-# def mary():
-#     return render_template('mary.html', title='mary')
+@main.route("/mary")
+def mary():
+    return render_template('mary.html', title='mary')
