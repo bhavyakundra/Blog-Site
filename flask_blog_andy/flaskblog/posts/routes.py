@@ -1,11 +1,24 @@
-from flask import render_template, url_for, flash, redirect, request, Blueprint
-from flaskblog.models import Post
-from flask import render_template, url_for, flash, redirect, request, abort
+import os
+import uuid
+from flaskblog import db, create_app
+from flaskblog.models import Post, File
 from flaskblog.posts.forms import PostForm
-from flaskblog import db
+from werkzeug.utils import secure_filename
 from flask_login import current_user, login_required
+from flask import render_template, url_for, flash, redirect, request, current_app, Blueprint
 
 posts = Blueprint('posts', __name__)
+app = create_app
+
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_PDF_EXTENSIONS = {'pdf'}
+ALLOWED_EXCEL_EXTENSIONS = {'xlsx', 'xls'}
+
+def get_file_extension(filename):
+    return os.path.splitext(filename)[1].lower()
+
+def allowed_file(filename, allowed_extensions):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 
 @posts.route("/post/new", methods=['GET', 'POST'])
@@ -17,13 +30,42 @@ def new_post():
             post = Post(title=form.title.data, content=form.content.data, author=current_user)
             db.session.add(post)
             db.session.commit()
+
+            # Handle uploaded files
+            allowed_extensions_image = ALLOWED_IMAGE_EXTENSIONS
+            allowed_extensions_pdf = ALLOWED_PDF_EXTENSIONS
+            allowed_extensions_excel = ALLOWED_EXCEL_EXTENSIONS
+
+            for uploaded_file in request.files.getlist('files'):
+                filename = secure_filename(f"{uuid.uuid4().hex}{get_file_extension(uploaded_file.filename)}")
+                if allowed_file(uploaded_file.filename, allowed_extensions_image):
+                    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                    post.image_filename = filename  # Set Image filename
+                elif allowed_file(uploaded_file.filename, allowed_extensions_pdf):
+                    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                    post.pdf_filename = filename  # Set PDF filename
+                elif allowed_file(uploaded_file.filename, allowed_extensions_excel):
+                    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                    post.excel_filename = filename  # Set Excel filename
+                else:
+                    # Handle unsupported file types
+                    flash(f"Unsupported file type: {uploaded_file.filename}", 'danger')
+                    continue
+
+                uploaded_file.save(file_path)
+                file_obj = File(filename=filename, posts=[post])
+                db.session.add(file_obj)
+
+            db.session.commit()
+
             flash('Your post has been created!', 'success')
             return redirect(url_for('main.home'))
-        return render_template('create_post.html', title='New Post', form=form, legend='New Post')
-    else:
-        flash('You do not have permission to add posts.', 'danger')
-        return redirect(url_for('main.home'))
 
+        return render_template('create_post.html', title='New Post', form=form, legend='New Post')
+    
+    else:
+        flash('You do not have permission to add the post.', 'danger')
+        return redirect(url_for('main.home'))
 
 @posts.route("/post/<int:post_id>")
 def post(post_id):
@@ -34,25 +76,75 @@ def post(post_id):
 @posts.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
 @login_required
 def update_post(post_id):
-    if (current_user.can_update_post or current_user.is_admin):
-        post = Post.query.get_or_404(post_id)
-        if post.author != current_user:
-            abort(403)
+    post = Post.query.get_or_404(post_id)
+
+    if (current_user.can_update_post or current_user.is_admin) and post.author == current_user:
         form = PostForm()
+
+        # Store the previous file attachments
+        previous_image = post.image_filename
+        previous_pdf = post.pdf_filename
+        previous_excel = post.excel_filename
+
         if form.validate():
+            # Update post title and content
             post.title = form.title.data
             post.content = form.content.data
+
+            # Handle uploaded files
+            allowed_extensions_image = ALLOWED_IMAGE_EXTENSIONS
+            allowed_extensions_pdf = ALLOWED_PDF_EXTENSIONS
+            allowed_extensions_excel = ALLOWED_EXCEL_EXTENSIONS
+
+            # Restore previous filenames if no new files are uploaded
+            if not request.files.getlist('files'):
+                post.image_filename = previous_image
+                post.pdf_filename = previous_pdf
+                post.excel_filename = previous_excel
+
+            for uploaded_file in request.files.getlist('files'):
+                filename = secure_filename(f"{uuid.uuid4().hex}{get_file_extension(uploaded_file.filename)}")
+                if allowed_file(uploaded_file.filename, allowed_extensions_image):
+                    print("Processing image file...")
+                    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                    post.image_filename = filename  # Set Image filename
+                elif allowed_file(uploaded_file.filename, allowed_extensions_pdf):
+                    print("Processing PDF file...")
+                    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                    post.pdf_filename = filename  # Set PDF filename
+                elif allowed_file(uploaded_file.filename, allowed_extensions_excel):
+                    print("Processing Excel file...")
+                    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                    post.excel_filename = filename  # Set Excel filename
+                else:
+                    # Handle unsupported file types
+                    flash(f"Unsupported file type: {uploaded_file.filename}", 'danger')
+                    continue
+
+                uploaded_file.save(file_path)
+                file_obj = File(filename=filename, posts=[post])
+                db.session.add(file_obj)
+
             db.session.commit()
+
             flash('Your post has been updated!', 'success')
             return redirect(url_for('posts.post', post_id=post.id))
         elif request.method == 'GET':
             form.title.data = post.title
             form.content.data = post.content
-        return render_template('create_post.html', title='Update Post',
-                            form=form, legend='Update Post')
-    
+
+        # Restore previous file attachments if no new files are uploaded
+        form.files.data = None  # Clear file data
+        if not form.files.data and previous_image:
+            form.files.data = [previous_image]
+        if not form.files.data and previous_pdf:
+            form.files.data = [previous_pdf]
+        if not form.files.data and previous_excel:
+            form.files.data = [previous_excel]
+
+        return render_template('create_post.html', title='Update Post', form=form, legend='Update Post')
     else:
-        flash('You do not have permission to update posts.', 'danger')
+        flash('You do not have permission to update this post.', 'danger')
         return redirect(url_for('main.home'))
 
 
@@ -69,6 +161,29 @@ def delete_post(post_id):
     else:
         flash('You do not have permission to delete posts.', 'danger')
         return redirect(url_for('main.home'))
-
     
 
+@posts.route("/post/<int:post_id>/file/<int:file_id>/delete", methods=['POST'])
+@login_required
+def delete_file(post_id, file_id):
+    post = Post.query.get_or_404(post_id)
+    file_to_delete = File.query.get_or_404(file_id)
+
+    # Check if the current user has permission to delete the file
+    if current_user.can_update_post or current_user.is_admin:
+        try:
+            # Remove the file from the post's files list and delete it
+            if file_to_delete in post.files:
+                post.files.remove(file_to_delete)
+                db.session.delete(file_to_delete)
+                db.session.commit()
+                flash('File deleted successfully.', 'success')
+            else:
+                flash('File not found.', 'danger')
+        except Exception as e:
+            flash('An error occurred while deleting the file.', 'danger')
+            db.session.rollback()
+    else:
+        flash('You do not have permission to delete the file.', 'danger')
+
+    return redirect(url_for('posts.post', post_id=post_id))
