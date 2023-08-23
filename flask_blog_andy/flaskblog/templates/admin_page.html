@@ -9,10 +9,10 @@
                 <tr>
                     <th>Username</th>
                     <th>Email</th>
-                    <th>Add Posts</th>
-                    <th>Update Posts</th>
-                    <th>Delete Posts</th>
-                    <th>Delete User</th>
+                    <th>Add Post</th>
+                    <th>Update Post</th>
+                    <th>Delete Post</th>
+                    <th>User Delete</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,9 +26,28 @@
                         <td>
                             {% if current_user.is_admin %}
                                 <!-- Delete User Form -->
+                        
                                 <form method="POST" action="{{ url_for('users.delete_user', user_id=user.id) }}">
                                     <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                    <button type="button" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; margin-top: 0" data-toggle="modal" data-target="#deleteModal{{ user.id }}">Delete</button>
+                                    
+                                    <!-- Delete Confirmation Modal -->
+                                    <div class="modal fade" id="deleteModal{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ user.id }}" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteModalLabel{{ user.id }}">Are you sure you want to delete it?</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </form>
                             {% else %}
                                 <p>You do not have permission to delete users.</p>
@@ -49,19 +68,57 @@
                 <th>Title</th>
                 <th>Content</th>
                 <th>Author</th>
-                <th>Delete</th>
+                <th>Attachments</th>
+                <th>Post Delete</th>
             </tr>
         </thead>
         <tbody>
             {% for post in posts %}
                 <tr>
                     <td>{{ post.title }}</td>
-                    <td>{{ post.content }}</td>
+                    <td>{{ post.content | safe }}</td>
                     <td>{{ post.author.username }}</td>
+                    <td>
+                        {% if post.files %}
+                            <ul>
+                                {% for file in post.files %}
+                                    <li>
+                                        <a href="{{ url_for('static', filename='uploads/' + file.filename) }}" target="_blank">{{ file.filename }}</a>
+                                        {% if current_user.is_admin %}
+                                            <form method="POST" action="{{ url_for('posts.delete_file', post_id=post.id, file_id=file.id) }}">
+                                                <input type="hidden" name="_method" value="DELETE">
+                                                <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.85rem;">Delete</button>
+                                            </form>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            No Files
+                        {% endif %}
+                    </td>
                     <td>
                         <form method="POST" action="{{ url_for('posts.delete_post', post_id=post.id) }}">
                             <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="btn btn-danger">Delete</button>
+                            <button type="button" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; margin-top: 0" data-toggle="modal" data-target="#deleteModal{{ post.id }}">Delete</button>
+                            
+                            <!-- Delete Confirmation Modal -->
+                            <div class="modal fade" id="deleteModal{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ post.id }}" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteModalLabel{{ post.id }}">Are you sure you want to delete it?</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </td>
                 </tr>

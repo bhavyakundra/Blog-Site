@@ -1,10 +1,10 @@
-from flask import Blueprint,request, render_template, redirect, url_for, flash, abort
-from flask_login import login_required, current_user
 from flaskblog import db
-from flaskblog.models import User, Post
-from .forms import UserPermissionsForm
 from functools import wraps
-
+from .forms import UserPermissionsForm
+from flaskblog.models import User, Post
+from flask_login import login_required, current_user
+from flask import Blueprint,request, render_template, redirect, url_for, flash, abort
+ 
 admin = Blueprint('admin', __name__)
 
 def admin_required(f):

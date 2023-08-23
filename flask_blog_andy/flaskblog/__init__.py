@@ -7,7 +7,6 @@ from flaskblog.config import Config
 from flask_migrate import Migrate
 
 
-
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
@@ -35,7 +34,6 @@ def create_app(config_class=Config):
     from flaskblog.errors.handlers import errors
     
 
-    
     app.register_blueprint(users)
     app.register_blueprint(posts)
     app.register_blueprint(main)
