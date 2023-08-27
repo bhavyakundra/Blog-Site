@@ -27,3 +27,7 @@ def amzn():
 @main.route("/mary")
 def mary():
     return render_template('mary.html', title='mary')
+
+    @main.route("/models")
+def models():
+    return render_template('models.html', title='models')
