@@ -12,6 +12,7 @@
                     <th>Add Post</th>
                     <th>Update Post</th>
                     <th>Delete Post</th>
+                    <th>Send Notification</th>
                     <th>User Delete</th>
                 </tr>
             </thead>
@@ -23,6 +24,7 @@
                         <td><input type="checkbox" name="can_add_post_{{ user.id }}" class="form-check-input" {% if user.can_add_post %}checked{% endif %}></td>
                         <td><input type="checkbox" name="can_update_post_{{ user.id }}" class="form-check-input" {% if user.can_update_post %}checked{% endif %}></td>
                         <td><input type="checkbox" name="can_delete_post_{{ user.id }}" class="form-check-input" {% if user.can_delete_post %}checked{% endif %}></td>
+                        <td><input type="checkbox" name="send_notification_{{ user.id }}" class="form-check-input" {% if user.send_notification %}checked{% endif %}></td>
                         <td>
                             {% if current_user.is_admin %}
                                 <!-- Delete User Form -->

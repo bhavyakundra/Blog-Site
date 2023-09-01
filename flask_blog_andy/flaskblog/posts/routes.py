@@ -1,12 +1,12 @@
 import os
 import uuid
 from flaskblog import db, create_app
-from flaskblog.models import Post, File
+from flaskblog.models import Post, File,User
 from flaskblog.posts.forms import PostForm
 from werkzeug.utils import secure_filename
 from flask_login import current_user, login_required
 from flask import render_template, url_for, flash, redirect, request, current_app, Blueprint
-
+from flaskblog.users.utils import send_email
 posts = Blueprint('posts', __name__)
 app = create_app
 
@@ -19,6 +19,15 @@ def get_file_extension(filename):
 
 def allowed_file(filename, allowed_extensions):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+def send_notification(post, users):
+    for user in users:
+        send_email(
+            user.email,
+            'New Post',
+            f'A new post has been created: {post.title}',
+            f'{post.content}',     
+        )
 
 
 @posts.route("/post/new", methods=['GET', 'POST'])
@@ -58,8 +67,11 @@ def new_post():
 
             db.session.commit()
 
-            flash('Your post has been created!', 'success')
-            return redirect(url_for('main.home'))
+            if current_user.is_admin:
+                send_notification(post, User.query.filter_by(send_notification=True).all())  
+            else:
+                flash('Your post has been created!', 'success')
+                return redirect(url_for('main.home'))
 
         return render_template('create_post.html', title='New Post', form=form, legend='New Post')
     

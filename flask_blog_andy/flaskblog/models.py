@@ -23,6 +23,7 @@ class User(db.Model, UserMixin):
     can_add_post = db.Column(db.Boolean, default=False)
     can_update_post = db.Column(db.Boolean, default=False)
     can_delete_post = db.Column(db.Boolean, default=False)
+    send_notification = db.Column(db.Boolean, default=False)
 
     def get_reset_token(self, expires_sec=1800):
         s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
