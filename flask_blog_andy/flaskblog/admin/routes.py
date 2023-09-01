@@ -28,6 +28,7 @@ def admin_page():
             user.can_add_post = bool(request.form.get(f'can_add_post_{user.id}'))
             user.can_update_post = bool(request.form.get(f'can_update_post_{user.id}'))
             user.can_delete_post = bool(request.form.get(f'can_delete_post_{user.id}'))
+            user.send_notification = bool(request.form.get(f'send_notification_{user.id}'))
         
         db.session.commit()
         flash('User permissions updated!', 'success')
@@ -48,6 +49,7 @@ def user_permissions(user_id):
         user.can_add_post = bool(request.form.get('can_add_post'))
         user.can_update_post = bool(request.form.get('can_update_post'))
         user.can_delete_post = bool(request.form.get('can_delete_post'))
+        user.send_notification = bool(request.form.get('send_notification'))
         
         db.session.commit()
         flash('User permissions updated!', 'success')

@@ -31,3 +31,21 @@ def send_reset_email(user):
 If you did not make this request then simply ignore this email and no changes will be made.
 '''
     mail.send(msg)
+
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+def send_email(email, subject, body, attachment=None):
+
+    msg = MIMEMultipart()
+    msg['Subject'] = subject
+    msg['From'] = 'noreply@yourdomain.com'
+    msg['To'] = email
+    body_txt = MIMEText(body)
+    msg.attach(body_txt)
+    smtp = smtplib.SMTP('smtp.gmail.com', 587)
+    smtp.starttls()
+    smtp.login('lolascone345@gmail.com', 'caxcswagodogsuzp')
+    smtp.sendmail('noreply@yourdomain.com', email, msg.as_string())
+    smtp.quit()
