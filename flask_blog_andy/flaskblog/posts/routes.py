@@ -1,12 +1,13 @@
 import os
 import uuid
 from flaskblog import db, create_app
-from flaskblog.models import Post, File
+from jinja2 import Template
+from flaskblog.models import Post, File,User
 from flaskblog.posts.forms import PostForm
 from werkzeug.utils import secure_filename
 from flask_login import current_user, login_required
 from flask import render_template, url_for, flash, redirect, request, current_app, Blueprint
-
+from flaskblog.users.utils import send_email
 posts = Blueprint('posts', __name__)
 app = create_app
 
@@ -20,6 +21,31 @@ def get_file_extension(filename):
 def allowed_file(filename, allowed_extensions):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
+from jinja2 import Template
+
+def send_notification(post, users):
+    base_url = request.url_root 
+    for user in users:
+        # Create a Jinja2 template
+        template = Template("""
+        <html>
+        <head></head>
+        <body>
+            <h1>New Post!</h1>
+            <h2>{{ post.title }}</h2>
+            <p><a href="{{ unsubscribe_url }}">Click here</a> to unsubscribe .</p>
+        </body>
+        </html>
+        """)
+
+        # Generate the unsubscribe URL with the user's ID
+        unsubscribe_url = f"{base_url}/unsubscribe?user_id={user.id}"
+
+        # Render the template with the post title and unsubscribe URL
+        html_content = template.render(post=post, unsubscribe_url=unsubscribe_url)
+
+        # Send the email
+        send_email(user.email, 'New Post', html_content)
 
 @posts.route("/post/new", methods=['GET', 'POST'])
 @login_required
@@ -49,7 +75,6 @@ def new_post():
                     post.excel_filename = filename  # Set Excel filename
                 else:
                     # Handle unsupported file types
-                    flash(f"Unsupported file type: {uploaded_file.filename}", 'danger')
                     continue
 
                 uploaded_file.save(file_path)
@@ -57,9 +82,12 @@ def new_post():
                 db.session.add(file_obj)
 
             db.session.commit()
-
-            flash('Your post has been created!', 'success')
-            return redirect(url_for('main.home'))
+            
+            if current_user.is_admin:
+                send_notification(post, User.query.filter_by(is_subscribed=True,send_notifications=True).all())  
+                print("userrrrr",User.query.filter_by(send_notifications=True,is_subscribed=True).all())
+                flash('Your post has been created!', 'success')
+                return redirect(url_for('main.home'))
 
         return render_template('create_post.html', title='New Post', form=form, legend='New Post')
     
@@ -67,7 +95,9 @@ def new_post():
         flash('You do not have permission to add the post.', 'danger')
         return redirect(url_for('main.home'))
 
+
 @posts.route("/post/<int:post_id>")
+@login_required
 def post(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template('post.html', title=post.title, post=post)
@@ -118,7 +148,6 @@ def update_post(post_id):
                     post.excel_filename = filename  # Set Excel filename
                 else:
                     # Handle unsupported file types
-                    flash(f"Unsupported file type: {uploaded_file.filename}", 'danger')
                     continue
 
                 uploaded_file.save(file_path)
@@ -126,9 +155,10 @@ def update_post(post_id):
                 db.session.add(file_obj)
 
             db.session.commit()
-
+            
             flash('Your post has been updated!', 'success')
-            return redirect(url_for('posts.post', post_id=post.id))
+            return redirect(url_for('main.home'))
+
         elif request.method == 'GET':
             form.title.data = post.title
             form.content.data = post.content

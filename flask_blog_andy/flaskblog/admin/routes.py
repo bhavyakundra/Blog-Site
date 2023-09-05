@@ -16,11 +16,10 @@ def admin_required(f):
             abort(403)  # Access denied
     return decorated_function
 
-
 @admin.route("/admin_page", methods=['GET', 'POST'])
 @admin_required
 def admin_page():
-    users = User.query.all()
+    users = User.query.all()  
     form = UserPermissionsForm()  # No need to pass user_ids anymore
 
     if request.method == 'POST':
@@ -28,7 +27,7 @@ def admin_page():
             user.can_add_post = bool(request.form.get(f'can_add_post_{user.id}'))
             user.can_update_post = bool(request.form.get(f'can_update_post_{user.id}'))
             user.can_delete_post = bool(request.form.get(f'can_delete_post_{user.id}'))
-        
+            user.send_notifications = bool(request.form.get(f'send_notifications_{user.id}'))
         db.session.commit()
         flash('User permissions updated!', 'success')
         return redirect(url_for('admin.admin_page'))
@@ -48,7 +47,7 @@ def user_permissions(user_id):
         user.can_add_post = bool(request.form.get('can_add_post'))
         user.can_update_post = bool(request.form.get('can_update_post'))
         user.can_delete_post = bool(request.form.get('can_delete_post'))
-        
+        user.send_notifications = bool(request.form.get('send_notifications'))
         db.session.commit()
         flash('User permissions updated!', 'success')
         return redirect(url_for('admin.admin_page'))

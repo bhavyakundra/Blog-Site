@@ -2,13 +2,14 @@ from flask import render_template, request, Blueprint
 from flaskblog.models import Post
 from flask import render_template,request
 from flaskblog.posts.forms import PostForm
-
+from flask_login import current_user, login_required
 
 main = Blueprint('main', __name__)
 
 
 @main.route("/")
 @main.route("/home")
+@login_required
 def home():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
@@ -16,6 +17,7 @@ def home():
 
 
 @main.route("/about")
+@login_required
 def about():
     return render_template('about.html', title='About')
 
@@ -28,6 +30,6 @@ def amzn():
 def mary():
     return render_template('mary.html', title='mary')
 
-    @main.route("/models")
+@main.route("/models")
 def models():
     return render_template('models.html', title='models')

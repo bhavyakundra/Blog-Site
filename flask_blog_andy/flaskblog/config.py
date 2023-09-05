@@ -7,7 +7,7 @@ class Config:
     MAIL_SERVER = 'smtp.googlemail.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = 'lolascone345@gmail.com'
-    MAIL_PASSWORD = 'caxcswagodogsuzp'
+    MAIL_USERNAME = 'andyrblog@gmail.com'
+    MAIL_PASSWORD = 'sgmqkeeootiousct'
     UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads/')
     PROFILE_PICS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'profile_pics/')

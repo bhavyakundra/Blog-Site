@@ -12,6 +12,8 @@
                     <th>Add Post</th>
                     <th>Update Post</th>
                     <th>Delete Post</th>
+                    <th>Send Notifications</th>
+                    <th>Subscribed</th> 
                     <th>User Delete</th>
                 </tr>
             </thead>
@@ -23,14 +25,21 @@
                         <td><input type="checkbox" name="can_add_post_{{ user.id }}" class="form-check-input" {% if user.can_add_post %}checked{% endif %}></td>
                         <td><input type="checkbox" name="can_update_post_{{ user.id }}" class="form-check-input" {% if user.can_update_post %}checked{% endif %}></td>
                         <td><input type="checkbox" name="can_delete_post_{{ user.id }}" class="form-check-input" {% if user.can_delete_post %}checked{% endif %}></td>
+                        <td><input type="checkbox" name="send_notifications_{{ user.id }}" class="form-check-input" {% if user.send_notifications %}checked{% endif %}></td>
+                        <td>
+                            {% if user.is_subscribed %}
+                            Subscribed
+                                {% else %}
+                                    Not Subscribed
+                                {% endif %}
+                            </td>
                         <td>
                             {% if current_user.is_admin %}
                                 <!-- Delete User Form -->
-                        
                                 <form method="POST" action="{{ url_for('users.delete_user', user_id=user.id) }}">
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="button" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; margin-top: 0" data-toggle="modal" data-target="#deleteModal{{ user.id }}">Delete</button>
-                                    
+
                                     <!-- Delete Confirmation Modal -->
                                     <div class="modal fade" id="deleteModal{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ user.id }}" aria-hidden="true">
                                         <div class="modal-dialog" role="document">
@@ -101,7 +110,7 @@
                         <form method="POST" action="{{ url_for('posts.delete_post', post_id=post.id) }}">
                             <input type="hidden" name="_method" value="DELETE">
                             <button type="button" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; margin-top: 0" data-toggle="modal" data-target="#deleteModal{{ post.id }}">Delete</button>
-                            
+
                             <!-- Delete Confirmation Modal -->
                             <div class="modal fade" id="deleteModal{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ post.id }}" aria-hidden="true">
                                 <div class="modal-dialog" role="document">

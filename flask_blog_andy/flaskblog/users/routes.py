@@ -10,7 +10,6 @@ from flaskblog import mail
 from functools import wraps
 from flask import abort
 
-
 users = Blueprint('users', __name__)
 
 
@@ -157,3 +156,35 @@ def delete_user(user_id):
         flash('The user has been deleted!', 'success')
     
     return redirect(url_for('admin.admin_page'))  # Redirect to the home page
+
+
+@users.route('/toggle_subscription', methods=['POST'])
+@login_required
+def toggle_subscription():
+    if request.method == 'POST':
+        if 'subscribe' in request.form:
+            current_user.is_subscribed = True
+        elif 'unsubscribe' in request.form:
+            current_user.is_subscribed = False
+
+        db.session.commit()
+
+    return redirect(url_for('users.account'))
+
+
+@users.route('/unsubscribe', methods=['GET'])
+
+def unsubscribe():
+    user_id = request.args.get('user_id')
+    # Fetch the user by user_id
+    user = User.query.get(user_id)
+
+    if user:
+        # Set the user's send_notifications attribute to False to unsubscribe
+        user.is_subscribed = False
+        db.session.commit()
+        flash('You have successfully unsubscribed from email notifications.', 'success')
+    else:
+        flash('Invalid user or user not found.', 'danger')
+
+    return redirect(url_for('main.home'))  

@@ -4,7 +4,7 @@ from PIL import Image
 from flask import url_for, current_app
 from flask_mail import Message
 from flaskblog import mail
-
+from flaskblog.config import Config
 
 def save_picture(form_picture, user_id):
     random_hex = secrets.token_hex(8)
@@ -31,3 +31,28 @@ def send_reset_email(user):
 If you did not make this request then simply ignore this email and no changes will be made.
 '''
     mail.send(msg)
+
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+from email.mime.base import MIMEBase
+from email import encoders
+
+def send_email(email, subject, html_body, attachment=None):
+    msg = MIMEMultipart()
+    msg['Subject'] = subject
+    msg['From'] = 'noreply@yourdomain.com'
+    msg['To'] = email
+
+    # Create a MIMEText object with the HTML content
+    body_html = MIMEText(html_body, 'html')
+
+    # Attach the HTML content to the email
+    msg.attach(body_html)
+
+    smtp = smtplib.SMTP('smtp.gmail.com', 587)
+    smtp.starttls()
+    smtp.login(Config.MAIL_USERNAME, Config.MAIL_PASSWORD)
+    smtp.sendmail('noreply@yourdomain.com', email, msg.as_string())
+    smtp.quit()
