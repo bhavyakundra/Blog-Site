@@ -83,6 +83,7 @@ def new_post():
 
             db.session.commit()
             
+            
             if current_user.is_admin:
                 send_notification(post, User.query.filter_by(is_subscribed=True,send_notifications=True).all())  
                 print("userrrrr",User.query.filter_by(send_notifications=True,is_subscribed=True).all())
