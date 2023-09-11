@@ -37,25 +37,25 @@
 
             </div>
             <!-- Navbar Right Side -->
-            <div class="navbar-nav">
+            <div class="navbar-nav" id="navbarToggle">
               <form method="POST" action="{{ url_for('users.toggle_subscription') }}">
-                {% if current_user.is_subscribed %}
-                  <button type="submit" class="nav-item nav-link btn btn-danger" name="unsubscribe" onclick="showSubscriptionAlert('You have unsubscribed!')">Unsubscribe</button>
-                {% else %}
-                  <button type="submit" class="nav-item nav-link btn btn-success" name="subscribe" onclick="showSubscriptionAlert('You are now subscribed!')">Subscribe</button>
-                {% endif %}
+              {% if current_user.is_subscribed %}
+                 <button type="submit" class="nav-item nav-link btn btn-success" name="unsubscribe" onclick="showSubscriptionAlert('You are now unsubscribed!')" style="color: white; background-color: transparent; border: none; padding: 0;">Unsubscribe</button>
+              {% else %}
+                <button type="submit" class="nav-item nav-link btn btn-success" name="subscribe" onclick="showSubscriptionAlert('You are now subscribed!')" style="color: white; background-color: transparent; border: none; padding: 0;">Subscribe</button>
+
+              {% endif %}
               </form>
-            </div>
+               </div>
+              {% endif %}
 
-          {% endif %}
-
-          {% if current_user.is_admin %}
-                  <a class="nav-item nav-link" href="{{ url_for('admin.admin_page') }}">Admin Page</a>
-                
-          {% else %}<!--
-                <a class="nav-item nav-link" href="{{ url_for('users.login') }}">Login</a>-->
-                <a class="nav-item nav-link" href="{{ url_for('users.register') }}">Register</a>
-          {% endif %}
+              {% if current_user.is_admin %}
+                      <a class="nav-item nav-link " href="{{ url_for('admin.admin_page') }}"  style="color: white;" >Admin Page</a>
+                    
+              {% else %}<!--
+                    <a class="nav-item nav-link" href="{{ url_for('users.login') }}">Login</a>-->
+                    <a class="nav-item nav-link" href="{{ url_for('users.register') }}" style="color: white;">Register</a>
+              {% endif %}
             </div>
           </div>
         </div>
