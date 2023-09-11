@@ -33,7 +33,6 @@ def send_notification(post, users):
         <body>
             <h1>New Post!</h1>
             <h2>{{ post.title }}</h2>
-            <h3>Lorem ipsum Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris tempor molestie enim, non tincidunt nisl interdum eget.</h3>
             <p><a href="{{ unsubscribe_url }}">Click here</a> to unsubscribe .</p>
         </body>
         </html>
@@ -64,14 +63,17 @@ def new_post():
             allowed_extensions_excel = ALLOWED_EXCEL_EXTENSIONS
 
             for uploaded_file in request.files.getlist('files'):
-                filename = secure_filename(f"{uuid.uuid4().hex}{get_file_extension(uploaded_file.filename)}")
-                if allowed_file(uploaded_file.filename, allowed_extensions_image):
+                original_filename = secure_filename(uploaded_file.filename)
+                file_extension = get_file_extension(original_filename)
+                filename = secure_filename(original_filename)
+
+                if allowed_file(original_filename, allowed_extensions_image):
                     file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
                     post.image_filename = filename  # Set Image filename
-                elif allowed_file(uploaded_file.filename, allowed_extensions_pdf):
+                elif allowed_file(original_filename, allowed_extensions_pdf):
                     file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
                     post.pdf_filename = filename  # Set PDF filename
-                elif allowed_file(uploaded_file.filename, allowed_extensions_excel):
+                elif allowed_file(original_filename, allowed_extensions_excel):
                     file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
                     post.excel_filename = filename  # Set Excel filename
                 else:
@@ -135,7 +137,10 @@ def update_post(post_id):
                 post.excel_filename = previous_excel
 
             for uploaded_file in request.files.getlist('files'):
-                filename = secure_filename(f"{uuid.uuid4().hex}{get_file_extension(uploaded_file.filename)}")
+                original_filename = secure_filename(uploaded_file.filename)
+                file_extension = get_file_extension(original_filename)
+                filename = secure_filename(original_filename)
+            
                 if allowed_file(uploaded_file.filename, allowed_extensions_image):
                     print("Processing image file...")
                     file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
@@ -187,12 +192,14 @@ def delete_post(post_id):
         post = Post.query.get_or_404(post_id)
         db.session.delete(post)
         db.session.commit()
+        print("######")
         flash('The post has been deleted!', 'success')
-        return redirect(url_for('main.home'))
+        
+        return redirect(url_for('admin.admin_page'))
     
     else:
         flash('You do not have permission to delete posts.', 'danger')
-        return redirect(url_for('main.home'))
+        return redirect(url_for('admin.admin_page'))
     
 
 @posts.route("/post/<int:post_id>/file/<int:file_id>/delete", methods=['POST'])
