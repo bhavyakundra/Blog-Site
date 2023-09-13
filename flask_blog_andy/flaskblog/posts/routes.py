@@ -31,7 +31,7 @@ def send_notification(post, users):
         <html>
         <head></head>
         <body>
-            <h1>New Post!</h1>
+            <h1>New Post</h1>
             <h2>{{ post.title }}</h2>
             <p><a href="{{ unsubscribe_url }}">Click here</a> to unsubscribe .</p>
         </body>
