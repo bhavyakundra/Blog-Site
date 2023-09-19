@@ -9,24 +9,31 @@
                 <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
             </div>
             <h2><a class="article-title" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a></h2>
-            <div class="article-content">{{ post.content | safe }}</div>
+            <div class="article-content">
+                {% set content_with_images = post.content %}
+                {% for file in post.files %}
+                    {% if file.filename.endswith(('.jpg', '.jpeg', '.png', '.gif')) %}
+                        {% set placeholder = '[[img:' + file.filename + ']]' %}
+                        {% set image_tag = '<img src="' + url_for('static', filename='uploads_image/' + file.filename) + '" alt="' + file.filename + '" class="img-fluid" style="max-width: 100px; height: auto;">' %}
+                        {% set content_with_images = content_with_images.replace(placeholder, image_tag) %}
+                    {% endif %}
+                {% endfor %}
+                {{ content_with_images | safe }}
+            </div>
             
             <!-- Display uploaded files -->
             {% for file in post.files %}
                 {% if file.filename.endswith('.pdf') %}
                     <a href="{{ url_for('static', filename='uploads/' + file.filename) }}" target="_blank">
-                        {{file.filename}}
-                        
-                    </a>
+                        {{ file.filename }}
                 {% elif file.filename.endswith('.xlsx') or file.filename.endswith('.xls') %}
                     <a href="{{ url_for('static', filename='uploads/' + file.filename) }}" target="_blank">
-                        {{file.filename}}
-                        
+                        {{ file.filename }}
                     </a>
-                    {% elif file.filename.endswith('.jpg') or file.filename.endswith('.jpeg') or file.filename.endswith('.png') or file.filename.endswith('.gif') %}
+                {% elif file.filename.endswith(('.jpg', '.jpeg', '.png', '.gif')) %}
                     <a href="{{ url_for('static', filename='uploads/' + file.filename) }}" target="_blank">
-                        {{file.filename}}
-                        
+                        <img src="{{ url_for('static', filename='uploads/' + file.filename) }}" alt="{{ file.filename }}" class="img-fluid" style="max-width: 100px; height: auto;">
+                        {{ file.filename }}
                     </a>
                 {% else %}
                     <a href="{{ url_for('static', filename='uploads/' + file.filename) }}" target="_blank">

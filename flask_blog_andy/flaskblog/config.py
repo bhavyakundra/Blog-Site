@@ -8,6 +8,7 @@ class Config:
     MAIL_PORT = 587
     MAIL_USE_TLS = True
     MAIL_USERNAME = 'andyrblog@gmail.com'
-    MAIL_PASSWORD = 'dagvvcfzvicamapb'
+    MAIL_PASSWORD = 'adszzvutgkxilysa'
     UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads/')
+    UPLOAD_FOLDERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads_image/')
     PROFILE_PICS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'profile_pics/')
