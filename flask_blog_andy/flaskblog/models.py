@@ -60,7 +60,7 @@ class Post(db.Model):
     
     def image_path(self):
         if self.image_filename:
-            return os.path.join(current_app.config['UPLOAD_FOLDER'], self.image_filename)
+            return os.path.join(current_app.config['UPLOAD_FOLDERS'], self.image_filename)
         return None
 
     def pdf_path(self):
