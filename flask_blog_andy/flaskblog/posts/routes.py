@@ -246,6 +246,7 @@ UPLOAD_FOLDERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stati
 @posts.route('/uploads_image/<filename>')
 def uploaded_file(filename):
     return send_from_directory(current_app.config['UPLOAD_FOLDERS'], filename)
+
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif'}
 
 # Function to check if the file extension is allowed
