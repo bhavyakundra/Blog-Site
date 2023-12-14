@@ -32,4 +32,4 @@ def mary():
 
 @main.route("/models")
 def models():
-    return render_template('models.html', title='models')
+    return render_template('models.html', HSAI_price=9.5)
