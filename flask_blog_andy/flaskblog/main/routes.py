@@ -3,7 +3,7 @@ from flaskblog.models import Post
 from flask import render_template,request
 from flaskblog.posts.forms import PostForm
 from flask_login import current_user, login_required
-
+import yfinance as yf
 main = Blueprint('main', __name__)
 
 
@@ -32,4 +32,6 @@ def mary():
 
 @main.route("/models")
 def models():
-    return render_template('models.html', HSAI_price=9.5)
+    price = yf.Ticker("HSAI")
+    current_ticker = price.info['currentPrice']
+    return render_template('models.html', HSAI_price=current_ticker)
