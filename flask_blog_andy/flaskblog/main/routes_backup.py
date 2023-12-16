@@ -3,7 +3,7 @@ from flaskblog.models import Post
 from flask import render_template,request
 from flaskblog.posts.forms import PostForm
 from flask_login import current_user, login_required
-import yfinance as yf
+# import yfinance as yf
 main = Blueprint('main', __name__)
 
 
@@ -38,20 +38,3 @@ def models():
 #     price = yf.Ticker("HSAI")
 #     current_ticker = price.info['currentPrice']
 #     return render_template('models.html', HSAI_price=current_ticker)
-
-from flask import Flask, render_template
-import yfinance as yf
-
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    # Replace 'HSAI' with your desired stock symbol
-    stock_symbol = 'HSAI'
-    stock_data = yf.Ticker(stock_symbol)
-    stock_price = stock_data.history(period='1d')['Close'].iloc[-1]
-
-    return render_template('your_template_file.html', HSAI_price=stock_price)
-
-if __name__ == '__main__':
-    app.run(debug=True)
