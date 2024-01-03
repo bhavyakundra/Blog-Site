@@ -40,9 +40,6 @@ CKEDITOR.replace('content-editor', {
     filebrowserUploadUrl: '{{ url_for("posts.upload_image") }}', 
     filebrowserUploadMethod: 'form',
     filebrowserImageUploadUrl: '{{ url_for("posts.upload_image") }}',
-
-    enterMode: CKEDITOR.ENTER_BR,
-    shiftEnterMode: CKEDITOR.ENTER_P,
 });
 </script>
 {% endblock content %}
